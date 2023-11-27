@@ -577,7 +577,7 @@ export const getCurrentBlockNumber = async () => {
     const response = await fetch(
       Const.DEFAULT_NETWORK === Const.NETWORK_MAINNET
         ? Const.RPC_ETH_MAINNET
-        : Const.RPC_ETH_GOERLI,
+        : Const.RPC_ETH_SEPOLIA,
       {
         method: "POST",
         headers: {
@@ -605,7 +605,7 @@ export const getBalanceOfAddress = async (address) => {
     }
     let rpc = Const.MAINNET_AP_BALANCE;
     if (Const.DEFAULT_NETWORK === Const.NETWORK_TESTNET) {
-      rpc = Const.GOERLI_API_BALANCE;
+      rpc = Const.SEPOLIA_API_BALANCE;
     }
 
     const response = await fetch(rpc + address);
