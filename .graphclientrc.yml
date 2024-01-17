@@ -2,7 +2,7 @@ sources:
   - name: threshold-tbtc-sepolia
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/59264/threshold-tbtc-sepolia/version/latest
+        endpoint: https://api.studio.thegraph.com/query/59264/threshold-tbtc-sepolia/v0.0.4
     transforms:
       - autoPagination:
           limitOfRecords: 2000
