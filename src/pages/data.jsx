@@ -3,76 +3,54 @@ import * as Const from "../utils/Cons";
 import moment from "moment";
 import Web3 from "web3";
 
-export const deposit_columns = [
+const tacoAddr = "0x347cc7ede7e5517bd47d20620b2cf1b406edcf07"
+export const ritual_columns = [
   {
     header: "Updated",
     accessor: "updateTime",
     numeric: false,
   },
   {
-    header: "Depositor",
-    accessor: "depositor",
+    header: "Authority",
+    accessor: "authority",
     numeric: false,
   },
   {
-    header: "Amount request",
-    accessor: "amount",
-    numeric: false,
-  },
-  {
-    header: "Amount received",
-    accessor: "actualAmountReceived",
-    numeric: false,
-  },
-  {
-    header: "Current State",
-    accessor: "status",
-    numeric: false,
-  },
-];
-
-export const redeem_columns = [
-  {
-    header: "Updated",
-    accessor: "updateTime",
-    numeric: false,
-  },
-  {
-    header: "Redeemer",
-    accessor: "redeemer",
-    numeric: false,
-  },
-  {
-    header: "Amount Request",
-    accessor: "amount",
-    numeric: false,
-  },
-  {
-    header: "Amount received",
-    accessor: "actualAmountReceived",
-    numeric: false,
-  },
-  {
-    header: "Current State",
-    accessor: "status",
-    numeric: false,
-  }
-];
-
-export const operator_columns = [
-  {
-    header: "Address",
-    accessor: "address",
-    numeric: false,
-  },
-  {
-    header: "tBTC Authorized",
-    accessor: "tBTCAuthorizedAmount",
+    header: "Aggregations",
+    accessor: "totalPostedAggregations",
     numeric: true,
   },
   {
-    header: "Random Beacon Authorized",
-    accessor: "randomBeaconAuthorizedAmount",
+    header: "Transcripts",
+    accessor: "totalPostedTranscripts",
+    numeric: true,
+  },
+  {
+    header: "Participants",
+    accessor: "totalParticipants",
+    numeric: true,
+  },
+  {
+    header: "Current State",
+    accessor: "status",
+    numeric: false,
+  },
+];
+
+export const staker_columns = [
+  {
+    header: "Staking Provider",
+    accessor: "id",
+    numeric: false,
+  },
+  {
+    header: "Operator",
+    accessor: "registeredOperatorAddress",
+    numeric: false,
+  },
+  {
+    header: "Authorized Stake",
+    accessor: "authorizedAmount",
     numeric: true,
   },
   {
@@ -80,60 +58,15 @@ export const operator_columns = [
     accessor: "stakedAmount",
     numeric: true,
   },
-  // {
-  //     header: "Available reward",
-  //     accessor: "availableReward",
-  //     numeric: true,
-  // },
   {
-    header: "Faults",
-    accessor: "misbehaved",
+    header: "Confirmed",
+    accessor: "isOperatorConfirmed",
+    numeric: false,
+  },
+  {
+    header: "Bonded At",
+    accessor: "bondedAt",
     numeric: true,
-  },
-  {
-    header: "Node registered ?",
-    accessor: "registeredOperatorAddress",
-    numeric: true,
-  },
-  {
-    header: "Staked At",
-    accessor: "stakedAt",
-    numeric: true,
-  },
-];
-
-export const groups_columns = [
-  {
-    header: "Group Public key",
-    accessor: "id",
-  },
-  {
-    header: "Total Slot",
-    accessor: "size",
-  },
-  {
-    header: "Unique Member",
-    accessor: "uniqueMemberCount",
-  },
-  {
-    header: "Faults",
-    accessor: "misbehavedCount",
-  },
-  {
-    header: "Total Slashed Amount",
-    accessor: "totalSlashedAmount",
-  },
-  {
-    header: "Create At",
-    accessor: "createdAt",
-  },
-  {
-    header: "Expired block",
-    accessor: "createdAtBlock",
-  },
-  {
-    header: "State",
-    accessor: "state",
   },
 ];
 
@@ -162,7 +95,7 @@ const COUNT_FORMATS = [
 
 export const formatString = (data) => {
   if (data == null) {
-    return "...";
+    return "Not yet finalized";
   }
   if (data.length < 10) {
     return data;
@@ -362,186 +295,207 @@ export function convertToLittleEndian(txHash) {
   return "";
 }
 
-export const formatDepositsData = (rawData) =>
-  rawData.map((item) => ({
-    id: item.id,
-    status: item.status.replace("_", " "),
-    depositor: item.user.id,
-    amount: parseFloat(item.amount),
-    newDebt: parseFloat(item.newDebt),
-    actualAmountReceived: parseFloat(item.actualAmountReceived),
-    treasuryFee: parseFloat(item.treasuryFee),
-    walletPubKeyHash: item.walletPubKeyHash,
-    fundingTxHash: convertFromLittleEndian(item.fundingTxHash),
-    fundingOutputIndex: item.fundingOutputIndex,
-    // eslint-disable-next-line no-undef
-    blindingFactor: BigInt(item.blindingFactor).toString(),
-    refundPubKeyHash: item.refundPubKeyHash,
-    refundLocktime: formatDate(
-      parseInt(convertFromLittleEndian(item.refundLocktime) * 1000)
-    ),
-    vault: item.vault,
-    depositTimestamp: item.depositTimestamp * 1000,
-    updateTime: item.updateTimestamp * 1000,
-    transactions: item.transactions,
-  }));
+export const formatRitualsData = (rawData) => {
+  const formattedData = rawData.map((item) => {
+    const transactionsLength = item.transactions?.length;
 
-export const formatRedeems = (rawData) => {
-  return rawData.map((item) => ({
-    id: item.id,
-    status: item.status.replace("_", " "),
-    redeemer: item.user.id,
-    amount: parseFloat(item.amount),
-    actualAmountReceived: parseFloat(item.amount) - item.treasuryFee,
-    walletPubKeyHash: item.walletPubKeyHash,
-    redeemerOutputScript: item.redeemerOutputScript,
-    redemptionTxHash: item.redemptionTxHash,
-    treasuryFee: formatSatoshi(item.treasuryFee),
-    txMaxFee: formatSatoshi(item.txMaxFee),
-    completedTxHash: convertFromLittleEndian(item.completedTxHash).replace(
-      "0x",
-      ""
-    ),
-    redemptionTimestamp: item.redemptionTimestamp * 1000,
-    updateTime: item.updateTimestamp * 1000,
-    transactions: item.transactions,
-  }));
+    return {
+      id: item.id,
+      status: item.dkgStatus.replace("_", " "),
+      initiator: item.initiator,
+      authority: item.authority,
+      aggregations: item.postedAggregations,
+      transcripts: item.postedTranscripts,
+      participants: item.participants,
+      publicKey: item.publicKey,
+      initTimeStamp: item.initTimestamp * 1000,
+      endTimeStamp: item.endTimestamp * 1000,
+      threshold: item.threshold,
+      dkgSize: item.dkgSize,
+      accessController: item.accessController,
+      transactions: item.transactions,
+      updateTime: item.transactions[transactionsLength - 1].timestamp * 1000,
+      totalParticipants: item.participants.length,
+      totalPostedAggregations: item.postedAggregations.length,
+      totalPostedTranscripts: item.postedTranscripts.length,
+    }});
+
+  formattedData.sort((a, b) => b.updateTime - a.updateTime);
+  return formattedData;
+}
+
+export const formatStakers = (rawData) => {
+  const stakers = rawData.map((item) => ({
+    id: item.id.split('-')[0],
+    registeredOperatorAddress: item.tacoOperator?.operator,
+    isOperatorConfirmed: item.tacoOperator?.confirmed,
+    isAuthorized: parseFloat(item.amount) > 0,
+    authorizedAmount: parseFloat(item.amount),
+    stakedAmount: parseFloat(item.stake?.stakedAmount),
+    bondedAt: item.tacoOperator?.bondedTimestamp * 1000,
+  }))
+
+  const statsRecord = {
+    numBondedOperators: 0,
+    totalAuthorizedAmount: 0,
+    totalStaked: 0,
+  };
+
+  stakers.forEach((staker) => {
+    if (staker.isOperatorConfirmed) {
+      statsRecord.numBondedOperators += 1;
+    }
+    statsRecord.totalAuthorizedAmount += staker.authorizedAmount;
+    statsRecord.totalStaked += staker.stakedAmount;
+  });
+
+  return { stakers, statsRecord };
 };
 
-export const formatOperators = (rawData) =>
-  rawData.map((item) => ({
-    id: item.id,
-    registeredOperatorAddress: item.registeredOperatorAddress,
-    tBTCAuthorized: item.tBTCAuthorized,
-    randomBeaconAuthorized: item.randomBeaconAuthorized,
-    tBTCAuthorizedAmount: parseFloat(item.tBTCAuthorizedAmount),
-    randomBeaconAuthorizedAmount: parseFloat(item.randomBeaconAuthorizedAmount),
-    stakedAmount: parseFloat(item.stakedAmount),
-    availableReward: parseFloat(item.availableReward),
-    misbehavedCount: item.misbehavedCount,
-    poolRewardBanDuration: item.poolRewardBanDuration,
-    stakedAt: item.stakedAt * 1000,
-  }));
+export const formatStakerDetail = (rawData) => {
+  const appAuthorization = rawData.appAuthorization;
+
+  const getFirstStakedAt = (stakeHistory) => {
+    const stakedEvents = stakeHistory.filter(event => event.eventType === 'Staked');
+    if (stakedEvents.length > 0) {
+      const firstStakedEvent = stakedEvents.reduce((earliest, current) => {
+        return earliest.timestamp < current.timestamp ? earliest : current;
+      });
+      return firstStakedEvent.timestamp;
+    }
+    return null;
+  };
+
+  const firstStakedAt = appAuthorization.stake?.stakeHistory 
+    ? getFirstStakedAt(appAuthorization.stake?.stakeHistory) * 1000 
+    : null;
+
+  const mergeAndSortEvents = (stakeHistory, appAuthHistories, tacoOperator) => {
+    const combinedEvents = [...stakeHistory, ...appAuthHistories].map(event => ({
+      blockNumber: event.blockNumber,
+      eventType: event.eventType,
+      timestamp: event.timestamp * 1000,
+      weiDecimalEventAmount: formatWeiDecimal(event.eventAmount || event.amount),
+      parsedEventAmount: parseFloat(event.eventAmount || event.amount),
+    }));
+
+    if (tacoOperator?.bondedTimestamp) {
+      combinedEvents.push({
+        blockNumber: null,
+        eventType: 'BondedOperator',
+        timestamp: tacoOperator.bondedTimestamp * 1000,
+        weiDecimalEventAmount: null,
+        parsedEventAmount: null,
+      });
+    }
+    
+    combinedEvents.sort((a, b) => b.timestamp - a.timestamp);
+    return combinedEvents;
+  };
+
+  const events = mergeAndSortEvents(
+    appAuthorization.stake?.stakeHistory || [], 
+    rawData.appAuthHistories || [], 
+    appAuthorization.tacoOperator || {}
+  );
+
+  console.log('events', events)
+
+  return {
+    id: appAuthorization.id?.split('-')[0],
+    registeredOperatorAddress: appAuthorization.tacoOperator?.operator,
+    isOperatorConfirmed: appAuthorization.tacoOperator?.confirmed,
+    isAuthorized: parseFloat(appAuthorization.amount) > 0,
+    weiDecimalAuthorizedAmount: formatWeiDecimal(appAuthorization.amount),
+    parsedAuthorizedAmount: parseFloat(appAuthorization.amount),
+    weiDecimalDeauthorizingAmount: formatWeiDecimal(appAuthorization.amountDeauthorizing),
+    weiDecimalStakedAmount: formatWeiDecimal(appAuthorization.stake?.stakedAmount),
+    parsedStakedAmount: parseFloat(appAuthorization.stake?.stakedAmount),
+    bondedAt: appAuthorization.tacoOperator?.bondedTimestamp * 1000,
+    stakedAt: firstStakedAt,
+    owner: appAuthorization.stake?.owner?.id,
+    authorizer: appAuthorization.stake?.authorizer,
+    beneficiary: appAuthorization.stake?.beneficiary,
+    events: events,
+  };
+};
 
 export const formatUserDetail = (user) => ({
-  tokenBalance: user.tokenBalance,
-  totalTokensHeld: user.totalTokensHeld,
-  mintingDebt: user.mintingDebt,
-  deposits: formatDepositsData(user.deposits),
-  redemptions: formatRedeems(user.redemptions),
+  rituals: formatRitualsData(user.rituals)
 });
 
-export const getDeposits = async (network, isSearch, searchInput) => {
+export const getRituals = async (isSearch, searchInput) => {
   const emptyData = JSON.parse(`[]`);
   try {
     let data;
     if (!isSearch) {
-      data = await client.execute(client.GetAllDepositsQueryDocument, {});
+      data = await client.execute(client.GetAllRitualsQueryDocument, {});
     } else {
       const fundingTxHashHex = convertToLittleEndian(searchInput.toLowerCase());
-      data = await client.execute(client.GetDepositsQueryByUserDocument, {
-        user: searchInput.toLowerCase(),
+      data = await client.execute(client.GetRitualsQueryByUserDocument, {
+        authority: searchInput.toLowerCase(),
         id: searchInput.toLowerCase(),
-        fundingTxHash: fundingTxHashHex,
+        txHash: fundingTxHashHex,
       });
     }
     if (data.data !== undefined) {
       return data.data;
     }
   } catch (e) {
-    console.log("error to fetch deposit data " + e);
+    console.log("error to fetch ritual data " + e);
   }
   return emptyData;
 };
 
-export const getRedeems = async (network, isSearch, searchInput) => {
+export const getRitualsByStakingProvider = async (searchInput) => {
   const emptyData = JSON.parse(`[]`);
   try {
-    let data = emptyData;
-    if (!isSearch) {
-      data = await client.execute(client.GetAllRedemptionsQueryDocument, {});
-    } else {
-      const completedTxHashHex = convertToLittleEndian(
-        searchInput.toLowerCase()
-      );
-      //search redemptionId
-      if (searchInput.startsWith("0x") && searchInput.length > 42) {
-        data = await client.execute(client.SearchRedemptionQueryByIdDocument, {
-          id: searchInput.toLowerCase(),
-        });
-      } else {
-        data = await client.execute(client.GetRedemptionQueryByUserDocument, {
-          user: searchInput.toLowerCase(),
-          id: searchInput.toLowerCase(),
-          completedTxHash: completedTxHashHex,
-        });
-      }
-    }
+    let data;
+    data = await client.execute(client.GetRitualsQueryByStakingProviderDocument, {
+      id: searchInput.toLowerCase(),
+    });
+
     if (data.data !== undefined) {
       return data.data;
     }
   } catch (e) {
-    console.log("error to fetch redeem data " + e);
+    console.log("error to fetch ritual data " + e);
   }
   return emptyData;
 };
 
-export const getTokenInfo = async (network) => {
-  const emptyData = JSON.parse(`{}`);
-  try {
-    // switchNetworkClient(network);
-    const data = await client.execute(client.TokenInfoQueryDocument, {});
-
-    if (data.data.tbtctokens !== undefined) {
-      return data.data.tbtctokens[0];
-    }
-  } catch (e) {
-    console.log("error to fetch token info data " + e);
-  }
-  return emptyData;
-};
-
-export const getOperators = async (isSearch, searchInput) => {
+export const getStakers = async (isSearch, searchInput) => {
   const emptyData = JSON.parse(`[]`);
   try {
     let data;
     if (!isSearch) {
-      data = await client.execute(client.OperatorsDocument, {});
+      data = await client.execute(client.GetAllStakersQueryDocument, {});
     } else {
-      data = await client.execute(client.SearchOperatorsDocument, {
-        id: searchInput.toLowerCase(),
+      data = await client.execute(client.SearchStakersDocument, {
+        id: `${searchInput.toLowerCase()}-${tacoAddr}`,
         address: searchInput.toLowerCase(),
       });
     }
+    console.log("data: ", data)
     return data.data;
   } catch (e) {
-    console.log("error to fetch operators data " + e);
+    console.log("error to fetch stakers data " + e);
   }
   return emptyData;
 };
 
-export const getOperatorDetail = async (operator) => {
-  const emptyData = JSON.parse(`[]`);
+export const getStakerDetail = async (staker) => {
+  const emptyData = JSON.parse(`[]`);  
   try {
-    const data = await client.execute(client.OperatorDetailDocument, {
-      id: operator,
+    const data = await client.execute(client.StakerDetailDocument, {
+      id: `${staker}-${tacoAddr}`
     });
-    return data.data.operator;
-  } catch (e) {
-    console.log("error to fetch operators data " + e);
-  }
-  return emptyData;
-};
 
-export const getGroupDetail = async (groupId) => {
-  const emptyData = JSON.parse(`[]`);
-  try {
-    const data = await client.execute(client.RandomBeaconGroupDetailDocument, {
-      id: groupId,
-    });
-    return data.data.randomBeaconGroup;
+    if (data.data !== undefined) {
+      return data.data;
+    }
   } catch (e) {
-    console.log("error to fetch group data " + e);
+    console.log("error to fetch staking provider data " + e);
   }
   return emptyData;
 };
@@ -550,24 +504,15 @@ export const getUserDetail = async (userAddress) => {
   const emptyData = JSON.parse(`[]`);
   try {
     let data;
-    data = await client.execute(client.GetUserDetailDocument, {
-      id: userAddress,
+    data = await client.execute(client.GetRitualsQueryByUserDocument, {
+      authority: userAddress,
     });
-    return formatUserDetail(data.data.user);
+
+    if (data.data !== undefined) {
+      return data.data;
+    }
   } catch (e) {
     console.log("error to fetch user data " + e);
-  }
-  return emptyData;
-};
-
-export const getListGroups = async () => {
-  const emptyData = JSON.parse(`[]`);
-  try {
-    let data;
-    data = await client.execute(client.ListRandomBeaconGroupDocument, {});
-    return data.data;
-  } catch (e) {
-    console.log("error to fetch list group data " + e);
   }
   return emptyData;
 };

@@ -186,17 +186,17 @@
     font-weight: bold;
 }
 
-.deposit_header {
+.ritual_header {
     text-align: left;
     padding-bottom: 10px;
     margin-top: 20px;
 }
 
-.deposit_header h3 {
+.ritual_header h3 {
     font-weight: bold;
 }
 
-.deposit_header span {
+.ritual_header span {
     color: gray;
     font-size: 1rem;
 }
@@ -213,6 +213,11 @@
     margin-top: 100px;
     width: 100%;
 }
+
+.div_bottom a {
+    color: blue;
+}
+
 
 .div_token {
     /*display: grid;*/
@@ -374,59 +379,59 @@
     font-size: 14px;
 }
 
-.operator_detail_header {
+.staker_detail_header {
     text-align: left;
     padding-bottom: 10px;
     display: flex;
 }
 
-.operator_detail_header h3 a {
+.staker_detail_header h3 a {
     font-weight: bold;
     color: rgb(10, 8, 6);
 }
 
-.operator_detail_header span {
+.staker_detail_header span {
     color: gray;
     font-size: 1rem;
 }
 
-.operator_detail_header_address {
+.staker_detail_header_address {
     display: flex;
     flex-direction: column;
     align-self: flex-start;
     flex: 1 1 0%;
 }
 
-.operator_detail_header_address h3 {
+.staker_detail_header_address h3 {
     font-weight: bold;
 }
 
-.operator_detail_header_value {
+.staker_detail_header_value {
     display: flex;
     flex-direction: row;
 }
 
-.operator_detail_header_value_item {
+.staker_detail_header_value_item {
     font-size: 30px;
     color: rgb(10, 8, 6);
     font-feature-settings: "zero";
     margin-right: 40px;
 }
 
-.operator_detail_header_value_item_lable {
+.staker_detail_header_value_item_lable {
     font-size: 16px;
 }
 
-.operator_detail_header_value_item_lable_sub {
+.staker_detail_header_value_item_lable_sub {
     font-size: 14px;
 }
 
-.operator_detail_header_value_item_percent {
+.staker_detail_header_value_item_percent {
     font-size: 20px;
     color: gray;
 }
 
-.operator_detail {
+.staker_detail {
     box-shadow: rgb(20 20 20 / 20%) 0px 4px 8px;
     box-sizing: border-box;
     text-indent: initial;
@@ -436,21 +441,21 @@
     border-radius: 4px;
 }
 
-.operator_detail_overview {
+.staker_detail_overview {
     display: flex;
     flex-direction: row;
 }
 
-.operator_detail_overview_table {
+.staker_detail_overview_table {
     color: rgb(10, 8, 6);
 }
 
-.operator_detail_overview_table a {
+.staker_detail_overview_table a {
     color: #ae96e1;
     font-size: 0.875rem;
 }
 
-.operator_detail_overview_table td, .operator_detail_overview_table th {
+.staker_detail_overview_table td, .staker_detail_overview_table th {
     font-weight: normal;
     padding: 5px;
     text-align: left;
@@ -458,16 +463,16 @@
     font-size: 1rem;
 }
 
-.operator_detail_overview_table td {
+.staker_detail_overview_table td {
     padding-left: 60px;
     display: flex;
 }
 
-.operator_detail_overview_table tbody.operator_detail_overview_table_tbody th:first-child {
+.staker_detail_overview_table tbody.staker_detail_overview_table_tbody th:first-child {
     padding-left: 20px;
 }
 
-.operator_detail_overview_table_td {
+.staker_detail_overview_table_td {
     color: gray;
     font-size: 0.8em;
 }

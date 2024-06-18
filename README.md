@@ -1,17 +1,13 @@
-# tBTC website
+# TACo website
 
-Provide insight into the workings of the tBTC systems - deposits, redemptions, who bonds for what, governance actions, etc.
+Provide insight into the workings of the TACo system.
 
-It incorporates work from️:
-
-[@miracle2k](https://github.com/miracle2k): Thanks for his [allthekeep](https://github.com/miracle2k/keep-subgraph) subgraph.
-
-Live at : https://tbtcscan.com/
+Live at : https://tacoscan.com/
 ## Installation
 
 ```bash
-git clone https://github.com/suntzu93/tbtcv2_website_info.git
-cd tbtcv2_website_info
+git clone https://github.com/threshold-network/tacoscan.git
+cd tacoscan
 npm install -g yarn
 yarn install
 yarn codegen

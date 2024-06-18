@@ -1,8 +1,15 @@
 sources:
-  - name: tbtc-mainnet
+  - name: threshold-staking-mainnet
     handler:
       graphql:
-        endpoint: https://gateway-arbitrum.network.thegraph.com/api/f49026e5653284c96b9798f93567eaa1/subgraphs/id/DETCX5Xm6tJfctRcZAxhQB9q3aK8P4BXLbujHmzEBXYV
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/f49026e5653284c96b9798f93567eaa1/subgraphs/id/5TJAMbsRwm1avUTV4CofaLT4apfQoAiNcysEit9BWr6R
+    transforms:
+      - autoPagination:
+          limitOfRecords: 2000
+  - name: taco-matic
+    handler:
+      graphql:
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/f49026e5653284c96b9798f93567eaa1/subgraphs/id/6VFbgC6JWwPQkqCxdVDNSieW8bwLdoVBtimVm3F2WV86
     transforms:
       - autoPagination:
           limitOfRecords: 2000

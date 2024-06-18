@@ -4,12 +4,25 @@ const getEtherScanLink = () => {
     return Const.DEFAULT_NETWORK === Const.NETWORK_MAINNET ? "https://etherscan.io" : "https://goerli.etherscan.io"
 }
 
+const getPolygonScanLink = () => {
+    return "https://polygonscan.com"
+}
+
 export const getEtherAddressLink = () => {
     return getEtherScanLink() + "/address/"
 }
 
+export const getPolygonScanAddressLink = () => {
+    return getPolygonScanLink() + "/address/"
+}
+
+
 export const getEtherTxHashLink = () => {
     return getEtherScanLink() + "/tx/"
+}
+
+export const getPolygonScanTxHashLink = () => {
+    return getPolygonScanLink() + "/tx/"
 }
 
 export const getEtherBlockLink = () => {
@@ -18,9 +31,9 @@ export const getEtherBlockLink = () => {
 
 export const getDomain = () => {
     if (Const.DEFAULT_NETWORK == Const.NETWORK_MAINNET) {
-        return "https://tbtcscan.com"
+        return "https://tacoscan.com"
     } else {
-        return "https://testnet.tbtcscan.com"
+        return "https://testnet.tacoscan.com"
     }
 }
 

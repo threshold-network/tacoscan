@@ -2,6 +2,8 @@ import React, { useMemo } from "react";
 import { useTable } from "react-table";
 import Loader from "../loader";
 import styles from "./styles.module.css";
+import { ReactComponent as Copy } from "../../assets/copy.svg";
+import Tooltip from "@mui/material/Tooltip";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -13,19 +15,14 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import { ReactComponent as ShareLink } from "../../assets/link.svg";
 import * as Data from "../../pages/data";
-import TransactionTimeline from "./timeline";
 import * as Utils from "../../utils/utils";
-import { getColorByStatus } from "./view_utils";
-import { ReactComponent as Copy } from "../../assets/copy.svg";
+import CheckSharpIcon from "@mui/icons-material/CheckSharp";
+import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 
-export const RedeemTable = ({ columns, data, isLoading }) => {
+export const StakerTable = ({ columns, data, isLoading, network }) => {
   const columnData = useMemo(() => columns, [columns]);
   const rowData = useMemo(() => data, [data]);
 
@@ -79,7 +76,6 @@ export const RedeemTable = ({ columns, data, isLoading }) => {
     return (
       <TableHead>
         <TableRow>
-          <TableCell />
           {columns.map((headCell) => (
             <TableCell
               className={styles.th}
@@ -87,11 +83,13 @@ export const RedeemTable = ({ columns, data, isLoading }) => {
               align={"left"}
               sortDirection={orderBy === headCell.accessor ? order : false}
             >
-              {headCell.accessor == "updateTime" ||
-              headCell.accessor == "amount" ||
-              headCell.accessor == "status" ? (
+              {headCell.accessor == "id" ||
+              headCell.accessor == "registeredOperatorAddress" ||
+              headCell.accessor == "authorizedAmount" ||
+              headCell.accessor == "stakedAmount" ||
+              headCell.accessor == "bondedAt" ? (
                 <TableSortLabel
-                  direction={orderBy === headCell.accessor ? order : "asc"}
+                  direction={orderBy === headCell.accessor ? order : "desc"}
                   onClick={createSortHandler(headCell.accessor)}
                 >
                   {headCell.header}
@@ -114,7 +112,7 @@ export const RedeemTable = ({ columns, data, isLoading }) => {
   };
 
   const [order, setOrder] = React.useState("desc");
-  const [orderBy, setOrderBy] = React.useState("updateTime");
+  const [orderBy, setOrderBy] = React.useState("tBTCAuthorizedAmount");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(100);
 
@@ -148,139 +146,64 @@ export const RedeemTable = ({ columns, data, isLoading }) => {
           tabIndex={-1}
           key={row.name}
           className={open ? styles.rowSeleted : null}
-          onClick={() => setOpen(!open)}
         >
-          <TableCell className={styles.td_selected}>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => setOpen(!open)}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          </TableCell>
           <TableCell align="left">
-            {Data.calculateTimeMoment(row.updateTime)}
+            <Link
+              target="_blank"
+              underline="hover"
+              href={Utils.getDomain() + "?staker=" + row.id}
+              className={styles.link}
+            >
+              {Data.formatString(row.id)}
+            </Link>
+            <ShareLink />
+            <Tooltip title="Copied">
+              <Copy
+                style={{ cursor: "pointer" }}
+                onClick={(e) => copyToClipBoard(row.id)}
+              />
+            </Tooltip>
           </TableCell>
           <TableCell align="left">
             <Link
               target="_blank"
               underline="hover"
-              href={Utils.getDomain() + "?user=" + row.redeemer}
+              href={Utils.getDomain() + "?staker=" + row.id}
               className={styles.link}
             >
-              {Data.formatString(row.redeemer)}
+              {Data.formatString(row.registeredOperatorAddress)}
             </Link>
             <ShareLink />
+            <Tooltip title="Copied">
+              <Copy
+                style={{ cursor: "pointer" }}
+                onClick={(e) => copyToClipBoard(row.registeredOperatorAddress)}
+              />
+            </Tooltip>
           </TableCell>
-          <TableCell align="left">{Data.formatSatoshi(row.amount)}</TableCell>
           <TableCell align="left">
-            {row.status !== "COMPLETED"
-              ? "0.000000"
-              : Data.formatSatoshi(row.actualAmountReceived)}
+            <span className={styles.numbers}>
+              {Data.formatWeiDecimal(row.authorizedAmount)}
+            </span>
           </TableCell>
-
-          <TableCell align="left" sx={{ color: getColorByStatus(row.status) }}>
-            {row.status}
+          <TableCell align="left">
+            <span className={styles.numbers}>
+              {Data.formatWeiDecimal(row.stakedAmount)}
+            </span>
           </TableCell>
-        </TableRow>
-        <TableRow className={styles.container_detail}>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <Box sx={{ margin: 1 }}>
-                <div className={styles.detail_item}>
-                  <TransactionTimeline
-                    className={styles.timeline}
-                    transactions={row.transactions}
-                  />
-                  <div className={styles.timeline}>
-                    <Table
-                      className={styles.table_detail}
-                      sx={{ minWidth: 750 }}
-                      aria-labelledby="tableTitle"
-                      size={"small"}
-                    >
-                      <TableBody>
-                        <TableRow>
-                          <TableCell>Redeem key</TableCell>
-                          <TableCell>
-                            {Data.formatString(row.id)}
-                            <Copy
-                              style={{ cursor: "pointer" }}
-                              onClick={(e) => copyToClipBoard(row.id)}
-                            />
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Wallet Pub KeyHash</TableCell>
-                          <TableCell>
-                            {Data.formatString(row.walletPubKeyHash)}
-                            <Copy
-                              style={{ cursor: "pointer" }}
-                              onClick={(e) =>
-                                copyToClipBoard(row.walletPubKeyHash)
-                              }
-                            />
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Output Script </TableCell>
-                          <TableCell>
-                            {Data.formatString(row.redeemerOutputScript)}
-                            <Copy
-                              style={{ cursor: "pointer" }}
-                              onClick={(e) =>
-                                copyToClipBoard(row.redeemerOutputScript)
-                              }
-                            />
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Redemption txHash </TableCell>
-                          <TableCell>
-                            {row.completedTxHash?.length > 0 ? (
-                              <>
-                                <Link
-                                  target="_blank"
-                                  underline="hover"
-                                  href={
-                                    Utils.getBlockStreamInfo() +
-                                    row.completedTxHash
-                                  }
-                                  className={styles.link}
-                                >
-                                  {Data.formatString(row.completedTxHash)}
-                                </Link>
-                                <ShareLink />
-                              </>
-                            ) : (
-                              "..."
-                            )}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>TreasuryFee</TableCell>
-                          <TableCell>{row.treasuryFee} </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>TxMaxFee</TableCell>
-                          <TableCell>
-                            {row.txMaxFee}{" "}
-                            <span className={styles.span_note}>BTC</span>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Redeem Timestamp</TableCell>
-                          <TableCell>
-                            {Data.calculateTimeMoment(row.redemptionTimestamp)}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-              </Box>
-            </Collapse>
+          <TableCell align="left">
+            {row.isOperatorConfirmed === true ? (
+              <Tooltip title={"operator address is registered"}>
+                <CheckSharpIcon style={{ color: "green" }} />
+              </Tooltip>
+            ) : (
+              <Tooltip title={"operator address is not registered"}>
+                <CloseSharpIcon style={{ color: "red" }} />
+              </Tooltip>
+            )}
+          </TableCell>
+          <TableCell align="left">
+            {row.bondedAt ? Data.formatTimeToText(row.bondedAt) : "-"}
           </TableCell>
         </TableRow>
       </React.Fragment>
@@ -356,4 +279,4 @@ export const RedeemTable = ({ columns, data, isLoading }) => {
   );
 };
 
-export default RedeemTable;
+export default StakerTable;

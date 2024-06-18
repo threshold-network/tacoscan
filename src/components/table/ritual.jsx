@@ -31,7 +31,76 @@ import * as Utils from "../../utils/utils";
 import {getColorByStatus} from "./view_utils"
 import TransactionTimeline from "./timeline";
 
-export const DepositTable = ({ columns, data, isLoading, network }) => {
+const formatAddresses = ({ addresses, isParticipants }) => {
+  if (addresses.length <= 3) {
+    return addresses.map((address, index) => (
+      <div key={index}>
+        {isParticipants 
+        ? <>
+            <Link
+              target="_blank"
+              underline="hover"
+              href={Utils.getPolygonScanAddressLink() + address}
+              className={styles.link}
+            >
+              {Data.formatString(address)}
+            </Link>
+            <Copy
+              style={{ cursor: "pointer" }}
+              onClick={(e) => copyToClipBoard(address)}
+            />
+          </>
+      : <>
+          {Data.formatString(address)}
+          <Copy
+            style={{ cursor: "pointer" }}
+            onClick={(e) => copyToClipBoard(address)}
+          />
+        </>}
+      </div>
+    ));
+  }
+
+  const displayedAddresses = addresses.slice(0, 3).map((address, index) => (
+    <div key={index}>
+      {
+        isParticipants
+          ? <>
+              <Link
+                target="_blank"
+                underline="hover"
+                href={Utils.getPolygonScanAddressLink() + address}
+                className={styles.link}
+              >
+                {Data.formatString(address)}
+              </Link>
+              <Copy
+                style={{ cursor: "pointer" }}
+                onClick={(e) => copyToClipBoard(address)}
+              />
+          </>
+          : <>
+              {Data.formatString(address)}
+              <Copy
+                style={{ cursor: "pointer" }}
+                onClick={(e) => copyToClipBoard(address)}
+              />
+            </>
+      }
+    </div>
+  ));
+
+  return (
+    <>
+      {displayedAddresses}
+      <Tooltip title={addresses.join(", ")}>
+        <span>more...</span>
+      </Tooltip>
+    </>
+  );
+};
+
+export const RitualTable = ({ columns, data, isLoading, network }) => {
   const columnData = useMemo(() => columns, [columns]);
   const rowData = useMemo(() => data, [data]);
   const { rows } = useTable({
@@ -93,8 +162,9 @@ export const DepositTable = ({ columns, data, isLoading, network }) => {
               sortDirection={orderBy === headCell.accessor ? order : false}
             >
               {headCell.accessor == "updateTime" ||
-              headCell.accessor == "amount" ||
-              headCell.accessor == "actualAmountReceived" ||
+              headCell.accessor == "totalPostedAggregations" ||
+              headCell.accessor == "totalTranscripts" ||
+              headCell.accessor == "totalParticipants" ||
               headCell.accessor == "status" ? (
                 <TableSortLabel
                   direction={orderBy === headCell.accessor ? order : "desc"}
@@ -174,28 +244,34 @@ export const DepositTable = ({ columns, data, isLoading, network }) => {
             <Link
               target="_blank"
               underline="hover"
-              href={Utils.getDomain() + "?user=" + row.depositor}
+              href={Utils.getDomain() + "?user=" + row.authority}
               className={styles.link}
             >
-              {Data.formatString(row.depositor)}
+              {Data.formatString(row.authority)}
             </Link>
             <ShareLink />
             <Tooltip title="Copied">
               <Copy
                 style={{ cursor: "pointer" }}
-                onClick={(e) => copyToClipBoard(row.depositor)}
+                onClick={(e) => copyToClipBoard(row.authority)}
               />
             </Tooltip>
           </TableCell>
           <TableCell align="left">
-          <span className={styles.numbers} >{Data.formatSatoshi(row.amount)}</span></TableCell>
-          <TableCell align="left">
-            <span className={styles.numbers}>{Data.formatGwei(row.actualAmountReceived)}</span>
+            <span className={styles.numbers} >{row.totalPostedAggregations}</span>
           </TableCell>
-          <TableCell align="left" sx={{color:getColorByStatus(row.status)}}>{row.status}</TableCell>
+          <TableCell align="left">
+            <span className={styles.numbers} >{row.totalPostedTranscripts}</span>
+          </TableCell>
+          <TableCell align="left">
+            <span className={styles.numbers} >{row.totalParticipants}</span>
+          </TableCell>
+          <TableCell align="left" sx={{color:getColorByStatus(row.status)}}>
+            {row.status}
+          </TableCell>
         </TableRow>
         <TableRow className={styles.container_detail}>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <Box sx={{ margin: 1 }}>
                 <div className={styles.detail_item}>
@@ -216,16 +292,79 @@ export const DepositTable = ({ columns, data, isLoading, network }) => {
                       >
                         <TableBody>
                           <TableRow>
-                            <TableCell>Deposit key</TableCell>
+                            <TableCell>DKG Id</TableCell>
                             <TableCell>
-                              {Data.formatString(row.id)}
+                              {row.id}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Public key</TableCell>
+                            <TableCell>
+                              {Data.formatString(row.publicKey)}
                               <Copy
                                 style={{ cursor: "pointer" }}
-                                onClick={(e) => copyToClipBoard(row.id)}
+                                onClick={(e) => copyToClipBoard(row.publicKey)}
                               />
                             </TableCell>
                           </TableRow>
                           <TableRow>
+                            <TableCell>Threshold</TableCell>
+                            <TableCell>
+                              {row.threshold}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>DKG Size</TableCell>
+                            <TableCell>
+                              {row.dkgSize}
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Initiator</TableCell>
+                            <TableCell>
+                              <Link
+                                target="_blank"
+                                underline="hover"
+                                href={Utils.getPolygonScanAddressLink() + row.initiator}
+                                className={styles.link}
+                              >
+                                {Data.formatString(row.initiator)}
+                              </Link>
+                              <ShareLink />
+                              <Copy
+                                style={{ cursor: "pointer" }}
+                                onClick={(e) => copyToClipBoard(row.initiator)}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell style={{ verticalAlign: "top" }}>Participants</TableCell>
+                            <TableCell>{
+                              row.participants.length == 0 
+                                ? "-" 
+                                : formatAddresses({
+                                    addresses: row.participants, 
+                                    isParticipants: true
+                                  })
+                              }</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell style={{ verticalAlign: "top" }}>Transcripts</TableCell>
+                            <TableCell>{
+                              row.transcripts.length == 0 
+                                ? "-" 
+                                : formatAddresses({addresses: row.transcripts})
+                              }</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell style={{ verticalAlign: "top" }}>Aggregations</TableCell>
+                            <TableCell>{
+                              row.aggregations.length == 0 
+                                ? "-" 
+                                : formatAddresses({addresses: row.aggregations})
+                              }</TableCell>
+                          </TableRow>
+                          {/* <TableRow>
                             <TableCell>Wallet Pub KeyHash</TableCell>
                             <TableCell>
                               {Data.formatString(row.walletPubKeyHash)}
@@ -282,25 +421,7 @@ export const DepositTable = ({ columns, data, isLoading, network }) => {
                                 }
                               />
                             </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Refund Locktime</TableCell>
-                            <TableCell>{row.refundLocktime}</TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Vault</TableCell>
-                            <TableCell>
-                              <Link
-                                target="_blank"
-                                underline="hover"
-                                href={Utils.getEtherAddressLink() + row.vault}
-                                className={styles.link}
-                              >
-                                {Data.formatString(row.vault)}
-                              </Link>
-                              <ShareLink />
-                            </TableCell>
-                          </TableRow>
+                          </TableRow> */}
                         </TableBody>
                       </Table>
                     </TableContainer>
@@ -383,4 +504,4 @@ export const DepositTable = ({ columns, data, isLoading, network }) => {
   );
 };
 
-export default DepositTable;
+export default RitualTable;
