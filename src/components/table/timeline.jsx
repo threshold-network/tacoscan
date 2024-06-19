@@ -21,9 +21,9 @@ export default function TransactionTimeline(transactions, network) {
     <Timeline>
       {rowData.transactions.map((transaction, index) => (<TimelineItem>
         <TimelineOppositeContent color="text.secondary">
-            <Tooltip title={Data.formatDate(transaction.timestamp * 1000)}>
-              <span>{Data.calculateTimeMoment(transaction.timestamp * 1000)}</span>
-            </Tooltip>
+          <Tooltip title={Data.formatDate(transaction.timestamp * 1000)}>
+            <span>{Data.calculateTimeMoment(transaction.timestamp * 1000)}</span>
+          </Tooltip>
         </TimelineOppositeContent>
         <TimelineSeparator>
           <TimelineDot sx={{backgroundColor:getColorByStatus(transaction.description)}}/>
@@ -31,25 +31,24 @@ export default function TransactionTimeline(transactions, network) {
         </TimelineSeparator>
         <TimelineContent>
           <Link
-              target="_blank"
-              underline="hover"
-              href={getPolygonScanTxHashLink() + transaction.txHash}
-              className={styles.link}
+            target="_blank"
+            underline="hover"
+            href={getPolygonScanTxHashLink() + transaction.txHash}
+            className={styles.link}
           >
-              {transaction.description}
+            {transaction.description}
+            <ShareLink/>
           </Link>
-          <ShareLink/>
-
           <span className={styles.bySpan}>by</span>
           <Link
-              target="_blank"
-              underline="hover"
-              href={getPolygonScanAddressLink() + transaction.from}
-              className={styles.by_link}
+            target="_blank"
+            underline="hover"
+            href={getPolygonScanAddressLink() + transaction.from}
+            className={styles.by_link}
           >
-              {Data.formatString(transaction.from)}
+            {Data.formatString(transaction.from)}
+            <ShareLink/>
           </Link>
-          <ShareLink/>
         </TimelineContent>
       </TimelineItem>))}
     </Timeline>

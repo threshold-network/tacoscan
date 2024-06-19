@@ -86,8 +86,8 @@ const UserDetailPage = () => {
                     className={styles.link}
                   >
                     {Data.formatString(user)}
+                    <ShareLink/>
                   </Link>
-                  <ShareLink/>
                 </h3>
                 <span>user</span>
               </div>

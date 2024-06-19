@@ -48,7 +48,7 @@ function Overview(staker) {
         try {
           navigator.clipboard.writeText(data);
         } catch (err) {}
-      };
+    };
 
     const formatEventType = (eventType) => {
         return eventType
@@ -126,8 +126,8 @@ function Overview(staker) {
                                     className={styles.link}
                                 >
                                     {Data.formatString(staker.owner)}
+                                    <ShareLink/>
                                 </Link>
-                                <ShareLink/>
                                 <Tooltip title="Copied">
                                     <Copy
                                         style={{ cursor: "pointer" }}
@@ -146,8 +146,8 @@ function Overview(staker) {
                                     className={styles.link}
                                 >
                                     {Data.formatString(staker.beneficiary)}
+                                    <ShareLink/>
                                 </Link>
-                                <ShareLink/>
                                 <Tooltip title="Copied">
                                     <Copy
                                         style={{ cursor: "pointer" }}
@@ -166,8 +166,8 @@ function Overview(staker) {
                                     className={styles.link}
                                 >
                                     {Data.formatString(staker.authorizer)}
+                                    <ShareLink/>
                                 </Link>
-                                <ShareLink/>
                                 <Tooltip title="Copied">
                                     <Copy
                                         style={{ cursor: "pointer" }}
@@ -186,8 +186,8 @@ function Overview(staker) {
                                     className={styles.link}
                                 >
                                     {staker.registeredOperatorAddress ? Data.formatString(staker.registeredOperatorAddress) : "Operator not registered"}
+                                    <ShareLink/>
                                 </Link>
-                                <ShareLink/>
                                 <Tooltip title="Copied">
                                     <Copy
                                         style={{ cursor: "pointer" }}
@@ -366,8 +366,8 @@ const StakerDetailPage = () => {
                                     className={styles.link}
                                 >
                                     {Data.formatString(staker)}
-                                </Link>
                                     <ShareLink/>
+                                </Link>
                                 </h3>
                                 <span>Staking Provider</span>
                             </div>

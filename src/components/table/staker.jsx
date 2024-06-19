@@ -16,7 +16,6 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
-import { ReactComponent as ShareLink } from "../../assets/link.svg";
 import * as Data from "../../pages/data";
 import * as Utils from "../../utils/utils";
 import CheckSharpIcon from "@mui/icons-material/CheckSharp";
@@ -149,14 +148,12 @@ export const StakerTable = ({ columns, data, isLoading, network }) => {
         >
           <TableCell align="left">
             <Link
-              target="_blank"
               underline="hover"
               href={Utils.getDomain() + "?staker=" + row.id}
               className={styles.link}
             >
               {Data.formatString(row.id)}
             </Link>
-            <ShareLink />
             <Tooltip title="Copied">
               <Copy
                 style={{ cursor: "pointer" }}
@@ -166,14 +163,12 @@ export const StakerTable = ({ columns, data, isLoading, network }) => {
           </TableCell>
           <TableCell align="left">
             <Link
-              target="_blank"
               underline="hover"
               href={Utils.getDomain() + "?staker=" + row.id}
               className={styles.link}
             >
               {Data.formatString(row.registeredOperatorAddress)}
             </Link>
-            <ShareLink />
             <Tooltip title="Copied">
               <Copy
                 style={{ cursor: "pointer" }}

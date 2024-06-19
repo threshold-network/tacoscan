@@ -38,9 +38,8 @@ const formatAddresses = ({ addresses, isParticipants }) => {
         {isParticipants 
         ? <>
             <Link
-              target="_blank"
               underline="hover"
-              href={Utils.getPolygonScanAddressLink() + address}
+              href={Utils.getDomain() + "?staker=" + address}
               className={styles.link}
             >
               {Data.formatString(address)}
@@ -242,14 +241,12 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
           </TableCell>
           <TableCell align="left">
             <Link
-              target="_blank"
               underline="hover"
               href={Utils.getDomain() + "?user=" + row.authority}
               className={styles.link}
             >
               {Data.formatString(row.authority)}
             </Link>
-            <ShareLink />
             <Tooltip title="Copied">
               <Copy
                 style={{ cursor: "pointer" }}
@@ -329,8 +326,8 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
                                 className={styles.link}
                               >
                                 {Data.formatString(row.initiator)}
+                                <ShareLink />
                               </Link>
-                              <ShareLink />
                               <Copy
                                 style={{ cursor: "pointer" }}
                                 onClick={(e) => copyToClipBoard(row.initiator)}
