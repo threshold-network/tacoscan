@@ -9,49 +9,48 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import Link from "@mui/material/Link";
 import {ReactComponent as ShareLink} from "../../assets/link.svg";
 import styles from "./styles.module.css";
-import {getEtherTxHashLink, getEtherAddressLink} from "../../utils/utils"
+import {getPolygonScanTxHashLink, getPolygonScanAddressLink} from "../../utils/utils"
 import * as Data from "../../pages/data";
 import {getColorByStatus} from "./view_utils"
 import Tooltip from "@mui/material/Tooltip";
 
 export default function TransactionTimeline(transactions, network) {
-    const rowData = useMemo(() => transactions, [transactions]);
-    const transactionLength = rowData.transactions.length;
-    return (<React.Fragment>
-        <Timeline>
-            {rowData.transactions.map((transaction, index) => (<TimelineItem>
-                <TimelineOppositeContent color="text.secondary">
-                    <Tooltip title={Data.formatDate(transaction.timestamp * 1000)}>
-                        <span>{Data.calculateTimeMoment(transaction.timestamp * 1000)}</span>
-                    </Tooltip>
-                </TimelineOppositeContent>
-                <TimelineSeparator>
-                    <TimelineDot sx={{backgroundColor:getColorByStatus(transaction.description)}}/>
-                    {index != transactionLength - 1 ? <TimelineConnector/> : ""}
-                </TimelineSeparator>
-                <TimelineContent>
-                    <Link
-                        target="_blank"
-                        underline="hover"
-                        href={getEtherTxHashLink() + transaction.txHash}
-                        className={styles.link}
-                    >
-                        {transaction.description}
-                    </Link>
-                    <ShareLink/>
-
-                    <span className={styles.bySpan}>by</span>
-                    <Link
-                        target="_blank"
-                        underline="hover"
-                        href={getEtherAddressLink() + transaction.from}
-                        className={styles.by_link}
-                    >
-                        {Data.formatString(transaction.from)}
-                    </Link>
-                    <ShareLink/>
-                </TimelineContent>
-            </TimelineItem>))}
-        </Timeline>
-    </React.Fragment>);
+  const rowData = useMemo(() => transactions, [transactions]);
+  const transactionLength = rowData.transactions.length;
+  return (<React.Fragment>
+    <Timeline>
+      {rowData.transactions.map((transaction, index) => (<TimelineItem>
+        <TimelineOppositeContent color="text.secondary">
+          <Tooltip title={Data.formatDate(transaction.timestamp * 1000)}>
+            <span>{Data.calculateTimeMoment(transaction.timestamp * 1000)}</span>
+          </Tooltip>
+        </TimelineOppositeContent>
+        <TimelineSeparator>
+          <TimelineDot sx={{backgroundColor:getColorByStatus(transaction.description)}}/>
+          {index != transactionLength - 1 ? <TimelineConnector/> : ""}
+        </TimelineSeparator>
+        <TimelineContent>
+          <Link
+            target="_blank"
+            underline="hover"
+            href={getPolygonScanTxHashLink() + transaction.txHash}
+            className={styles.link}
+          >
+            {transaction.description}
+            <ShareLink/>
+          </Link>
+          <span className={styles.bySpan}>by</span>
+          <Link
+            target="_blank"
+            underline="hover"
+            href={getPolygonScanAddressLink() + transaction.from}
+            className={styles.by_link}
+          >
+            {Data.formatString(transaction.from)}
+            <ShareLink/>
+          </Link>
+        </TimelineContent>
+      </TimelineItem>))}
+    </Timeline>
+  </React.Fragment>);
 }

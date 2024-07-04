@@ -106,8 +106,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   border: 0 !important;
-    border-spacing: 0 !important;
-    
+  border-spacing: 0 !important;
 }
 
 .table_detail td {

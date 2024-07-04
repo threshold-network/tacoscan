@@ -1,412 +1,225 @@
-query GetDepositsQueryByUser($user: String, $id: Bytes,$fundingTxHash: Bytes){
-    deposits(first: 1000,where:{
-        or:[
-            {user : $user},
-            {id: $id},
-            {fundingTxHash: $fundingTxHash}
-        ]
-        },orderBy: updateTimestamp,orderDirection: desc) {
-        id
-        status
-        user{
-            id
+query GetRitualsQueryByUser($authority:Bytes,$id:ID,$txHash:Bytes){
+    rituals(
+        first:1000
+        where:{
+            or:[
+                {authority:$authority},
+                {id:$id},
+                {transactions_:{txHash:$txHash}}
+            ]
         }
+    ) {
+        id
+        initiator
+        initTimestamp
+        endTimestamp
+        dkgSize
+        dkgStatus
+        authority
+        accessController
+        participants
+        postedAggregations
+        postedTranscripts
+        publicKey
+        threshold
+        transactions(orderBy:timestamp,orderDirection:desc) {
+            description
+            from
+            id
+            timestamp
+            to
+            txHash
+        }
+    }
+    ritualCounter(id:"Counter"){
+        total
+        unsuccessful
+        successful
+        notEnded
+    }
+}
+
+query GetRitualsQueryByStakingProvider($id:Bytes!){
+    rituals(
+        first:1000
+        where: { participants_contains: [$id]}
+    ) {
+        id
+        initiator
+        initTimestamp
+        endTimestamp
+        dkgSize
+        dkgStatus
+        authority
+        accessController
+        participants
+        postedAggregations
+        postedTranscripts
+        publicKey
+        threshold
+        transactions(orderBy:timestamp,orderDirection:desc) {
+            description
+            from
+            id
+            timestamp
+            to
+            txHash
+        }
+    }
+}
+
+query GetAllRitualsQuery{
+    rituals(first:1000) {
+        id
+        initiator
+        initTimestamp
+        endTimestamp
+        authority
+        accessController
+        dkgSize
+        dkgStatus
+        participants
+        postedAggregations
+        postedTranscripts
+        publicKey
+        threshold
+        transactions(orderBy:timestamp,orderDirection:desc) {
+            description
+            from
+            id
+            timestamp
+            to
+            txHash
+        }
+    }
+    ritualCounter(id:"Counter") {
+        total
+        unsuccessful
+        successful
+        notEnded
+    }
+}
+
+query GetAllStakersQuery {
+  appAuthorizations(
+    first: 1000
+    orderBy: stake__stakedAmount
+    orderDirection: desc
+    where: {appName: "TACo"}
+  ) {
         amount
-        newDebt
-        actualAmountReceived
-        treasuryFee
-        walletPubKeyHash
-        fundingTxHash
-        fundingOutputIndex
-        blindingFactor
-        refundPubKeyHash
-        refundLocktime
-        vault
-        depositTimestamp
-        updateTimestamp
-        transactions(orderBy: timestamp,orderDirection:desc){
-            timestamp
-            txHash
-            from
-            to
-            description
-        }
-    }
-    statsRecord(id:"current"){
-        mintingStatus
-    }
-    tbtctoken(id:"TBTCToken"){
-        totalMint
-        totalBurn
-        totalSupply
-    }
-}
-
-query GetAllDepositsQuery{
-    deposits(first: 1000,orderBy: updateTimestamp,orderDirection: desc) {
+        amountDeauthorizing
+        appAddress
+        appName
         id
-        status
-        user{
+        stake {
+            authorizer
+            beneficiary
             id
+            owner {
+                id
+            }
+            stakedAmount
+            stakeHistory(first: 10, orderBy: timestamp, orderDirection: asc) {
+                blockNumber
+                eventAmount
+                eventType
+                id
+                stakedAmount
+                timestamp
+            }
         }
-        amount
-        newDebt
-        actualAmountReceived
-        treasuryFee
-        walletPubKeyHash
-        fundingTxHash
-        fundingOutputIndex
-        blindingFactor
-        refundPubKeyHash
-        refundLocktime
-        vault
-        depositTimestamp
-        updateTimestamp
-        transactions(orderBy: timestamp,orderDirection:desc){
-            timestamp
-            txHash
-            from
-            to
-            description
-        }
-    }
-    statsRecord(id:"current"){
-        mintingStatus
-    }
-    tbtctoken(id:"TBTCToken"){
-        totalMint
-        totalBurn
-        totalSupply
-    }
-}
-
-
-query SearchRedemptionQueryById($id: String!){
-    searchRedemption(text:$id) {
-        id,
-        status,
-        user{
+        tacoOperator {
+            bondedTimestamp
+            bondedTimestampFirstOperator
+            confirmed
             id
-        },
-        amount,
-        walletPubKeyHash,
-        redeemerOutputScript,
-        redemptionTxHash,
-        treasuryFee,
-        txMaxFee,
-        completedTxHash
-        redemptionTimestamp
-        updateTimestamp
-        transactions(orderBy: timestamp,orderDirection:desc){
-            timestamp
-            txHash
-            from
-            to
-            description
+            operator
         }
     }
-    tbtctoken(id:"TBTCToken"){
-        totalMint
-        totalBurn
-        totalSupply
-    }
 }
 
-
-query GetRedemptionQueryByUser($user: String, $id: ID,$completedTxHash: Bytes){
-    redemptions (first: 1000,where:{
-        or:[
-            {user : $user},
-            {id: $id},
-            {completedTxHash: $completedTxHash}
-        ]
-    },orderBy: updateTimestamp,orderDirection: desc) {
-        id,
-        status,
-        user{
-            id
-        },
-        amount,
-        walletPubKeyHash,
-        redeemerOutputScript,
-        redemptionTxHash,
-        treasuryFee,
-        txMaxFee,
-        completedTxHash
-        redemptionTimestamp
-        updateTimestamp
-        transactions(orderBy: timestamp,orderDirection:desc){
-            timestamp
-            txHash
-            from
-            to
-            description
-        }
-    }
-    tbtctoken(id:"TBTCToken"){
-        totalMint
-        totalBurn
-        totalSupply
-    }
-}
-
-query GetAllRedemptionsQuery{
-    redemptions (first: 1000,orderBy: updateTimestamp,orderDirection: desc) {
-        id,
-        status,
-        user{
-            id
-        },
-        amount,
-        walletPubKeyHash,
-        redeemerOutputScript,
-        redemptionTxHash,
-        treasuryFee,
-        txMaxFee,
-        completedTxHash
-        redemptionTimestamp
-        updateTimestamp
-        transactions(orderBy: timestamp,orderDirection:desc){
-            timestamp
-            txHash
-            from
-            to
-            description
-        }
-    }
-    tbtctoken(id:"TBTCToken"){
-        totalMint
-        totalBurn
-        totalSupply
-    }
-}
-
-query TokenInfoQuery{
-    tbtctokens{
-        name
-        symbol
-        decimals
-        address
-        totalSupply
-        totalMint
-        totalBurn
-        currentTokenHolders
-    }
-}
-
-
-query Operators {
-    operators(first:1000, orderBy: tBTCAuthorizedAmount, orderDirection: desc){
-        id
-        registeredOperatorAddress
-        tBTCAuthorized
-        randomBeaconAuthorized
-        tBTCAuthorizedAmount
-        randomBeaconAuthorizedAmount
-        stakedAmount
-        availableReward
-        misbehavedCount
-        poolRewardBanDuration
-        stakedAt
-    }
-    statsRecord(id:"current"){
-        totalStaked
-        numOperatorsRegisteredNode
-        totalTBTCAuthorizedAmount
-        totalRandomBeaconAuthorizedAmount
-    }
-}
-
-query SearchOperators($id: ID!,$address: Bytes) {
-    operators(where:{
+query SearchStakers($id: ID!,$address: Bytes) {
+    appAuthorizations(where:{
         or: [
             {id:$id},
-            {address:$address}
+            {tacoOperator_: {operator: $address}}
         ]
     })
     {
+        amount
+        amountDeauthorizing
+        appAddress
+        appName
         id
-        registeredOperatorAddress
-        tBTCAuthorized
-        randomBeaconAuthorized
-        tBTCAuthorizedAmount
-        randomBeaconAuthorizedAmount
-        stakedAmount
-        availableReward
-        misbehavedCount
-        poolRewardBanDuration
-        stakedAt
-    }
-    statsRecord(id:"current"){
-        totalStaked
-        numOperatorsRegisteredNode
-        totalTBTCAuthorizedAmount
-        totalRandomBeaconAuthorizedAmount
-    }
-}
-
-query OperatorDetail($id: ID!) {
-    operator(id:$id){
-        id
-        address
-        tBTCAuthorized
-        randomBeaconAuthorized
-        tBTCAuthorizedAmount
-        randomBeaconAuthorizedAmount
-        stakedAmount
-        rewardDispensed
-        availableReward
-        misbehavedCount
-        totalSlashedAmount
-        poolRewardBanDuration
-        stakedAt
-        authorizer
-        beneficiary
-        owner
-        events(orderBy:timestamp,orderDirection:desc){
+        stake {
+            authorizer
+            beneficiary
             id
-            txHash
-            amount
-            from
-            to
-            event
-            timestamp
-            isRandomBeaconEvent
-        }
-        randomBeaconGroupMemberships(orderBy:groupCreatedAt,orderDirection:desc){
-            count
-            group{
+            stakedAmount
+            stakeHistory(first: 10, orderBy: timestamp, orderDirection: asc) {
+                blockNumber
+                eventAmount
+                eventType
                 id
-                createdAt
-                createdAtBlock
-                groupPublicKey{
-                    pubKey
-                }
-                size
-                uniqueMemberCount
-                misbehavedCount
-                totalSlashedAmount
-                terminated
-                nonce
-                notifier
-            }
-        }
-    }
-}
-
-query ListRandomBeaconGroup{
-    randomBeaconGroups{
-        id
-        createdAt
-        createdAtBlock
-        groupPublicKey{
-            pubKey
-        }
-        size
-        uniqueMemberCount
-        misbehavedCount
-        totalSlashedAmount
-        terminated
-        nonce
-        notifier
-    }
-    statusRecord(id:"status"){
-        groupState
-    }
-}
-
-query RandomBeaconGroupDetail($id: ID!){
-    randomBeaconGroup(id:$id){
-        id
-        createdAt
-        createdAtBlock
-        groupPublicKey{
-            pubKey
-        }
-        size
-        uniqueMemberCount
-        misbehavedCount
-        totalSlashedAmount
-        terminated
-        nonce
-        notifier
-        isWalletRegistry
-        memberships(orderBy: count,orderDirection: desc){
-            count
-            seats
-            operator{
-                id
-                address
-                misbehavedCount
-                tBTCAuthorizedAmount
-                randomBeaconAuthorizedAmount
-                availableReward
-            }
-        }
-        relayEntries(orderBy:submittedAt,orderDirection:desc){
-            id
-            requestedAt
-            submittedAt
-            value
-        }
-    }
-}
-
-query GetUserDetail($id: ID!){
-    user(id:$id){
-        tokenBalance
-        totalTokensHeld
-        mintingDebt
-        deposits(first: 1000,orderBy: updateTimestamp,orderDirection: desc) {
-            id
-            status
-            user{
-                id
-            }
-            amount
-            newDebt
-            actualAmountReceived
-            treasuryFee
-            walletPubKeyHash
-            fundingTxHash
-            fundingOutputIndex
-            blindingFactor
-            refundPubKeyHash
-            refundLocktime
-            vault
-            depositTimestamp
-            updateTimestamp
-            transactions(orderBy: timestamp,orderDirection:desc){
+                stakedAmount
                 timestamp
-                txHash
-                from
-                to
-                description
             }
         }
-        redemptions (first: 1000,orderBy: updateTimestamp,orderDirection: desc) {
-            id,
-            status,
-            user{
-                id
-            },
-            amount,
-            walletPubKeyHash,
-            redeemerOutputScript,
-            redemptionTxHash,
-            treasuryFee,
-            txMaxFee,
-            completedTxHash
-            redemptionTimestamp
-            updateTimestamp
-            transactions(orderBy: timestamp,orderDirection:desc){
-                timestamp
-                txHash
-                from
-                to
-                description
-            }
+        tacoOperator {
+            bondedTimestamp
+            bondedTimestampFirstOperator
+            confirmed
+            id
+            operator
         }
     }
+}
 
+query StakerDetail($id: ID!) {
+    appAuthorization(id:$id){
+        id
+        amount
+        amountDeauthorizing
+        appAddress
+        appName
+        stake {
+            owner {
+                id
+            }
+            authorizer
+            beneficiary
+            id
+            stakedAmount
+            stakeHistory(first: 10, orderDirection: desc, orderBy: timestamp) {
+                blockNumber
+                eventAmount
+                eventType
+                id
+                stakedAmount
+                timestamp
+            }
+        }
+        tacoOperator {
+            bondedTimestamp
+            bondedTimestampFirstOperator
+            confirmed
+            id
+            operator
+        }
+    }
+    appAuthHistories(
+        first: 10
+        where: {appAuthorization_:{id:$id}}
+        orderBy: timestamp
+        orderDirection: asc
+    ) {
+        id
+        amount
+        blockNumber
+        eventAmount
+        eventType
+        stakingProvider
+        timestamp
+    }
 }

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import * as Data from "../data";
+import React, { useEffect } from "react";
 import About from "./about";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
@@ -9,8 +8,7 @@ import TabPanel from "@mui/lab/TabPanel";
 import Button from "@mui/material/Button";
 import { browserHistory } from "react-router";
 import styles from "./styles.module.css";
-import RedeemsPage from "./redeem";
-import DepositPage from "./deposit";
+import RitualPage from "./ritual";
 import { ReactComponent as Logo } from "../../logo.svg";
 import { ReactComponent as PowerThreshold} from '../../assets/power-threshold.svg';
 
@@ -21,12 +19,9 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import SearchIcon from "@mui/icons-material/Search";
-import TokenPage from "./token";
-import OperatorPage from "./operator";
-import OperatorDetailPage from "./operatorDetail";
-import GroupDetailPage from "./groupDetail";
+import StakerPage from "./staker";
+import StakerDetailPage from "./stakerDetail";
 import UserDetailPage from "./userDetail";
-import GroupsPage from "./groups";
 
 const HomePage = () => {
   const [tab, setTab] = React.useState("1");
@@ -38,36 +33,28 @@ const HomePage = () => {
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.has("operator")) {
-      setTab("operatorDetail");
-    } else if (query.has("group")) {
-      setTab("groupDetail");
+    if (query.has("staker")) {
+      setTab("stakerDetail");
     } else if (query.has("user")) {
       setTab("userDetail");
     } else {
       const pathName = window.location.pathname;
-      if (pathName.startsWith("/operator/")) {
-        setTab("operatorDetail");
-      } else if (pathName.startsWith("/redeems")) {
-        setTab("redeems");
-      } else if (pathName.startsWith("/operators")) {
-        setTab("operators");
-      } else if (pathName.startsWith("/groups")) {
-        setTab("groups");
+      if (pathName.startsWith("/staker/")) {
+        setTab("stakerDetail");
+      } else if (pathName.startsWith("/stakers")) {
+        setTab("stakers");
       } else if (pathName.startsWith("/about")) {
         setTab("about");
-      } else if (pathName.startsWith("/token")) {
-        setTab("token");
       } else {
-        setTab("deposits");
+        setTab("rituals");
       }
     }
   }, []);
 
-  function deposits() {
+  function rituals() {
     return (
       <div>
-        <DepositPage
+        <RitualPage
           network={Const.DEFAULT_NETWORK}
           isSearch={isSearch}
           searchInput={searchInput}
@@ -76,10 +63,10 @@ const HomePage = () => {
     );
   }
 
-  function redeems() {
+  function stakers() {
     return (
       <div>
-        <RedeemsPage
+        <StakerPage
           network={Const.DEFAULT_NETWORK}
           isSearch={isSearch}
           searchInput={searchInput}
@@ -88,40 +75,8 @@ const HomePage = () => {
     );
   }
 
-  function token() {
-    return (
-      <div>
-        <TokenPage network={Const.DEFAULT_NETWORK} />
-      </div>
-    );
-  }
-
-  function operators() {
-    return (
-      <div>
-        <OperatorPage
-          network={Const.DEFAULT_NETWORK}
-          isSearch={isSearch}
-          searchInput={searchInput}
-        />
-      </div>
-    );
-  }
-
-  function groups() {
-    return (
-      <div>
-        <GroupsPage network={Const.DEFAULT_NETWORK} />
-      </div>
-    );
-  }
-
-  function operatorDetail() {
-    return <OperatorDetailPage />;
-  }
-
-  function groupDetail() {
-    return <GroupDetailPage />;
+  function stakerDetail() {
+    return <StakerDetailPage />;
   }
 
   function userDetail() {
@@ -136,41 +91,15 @@ const HomePage = () => {
     const handleChange = (event, newValue) => {
       setTab(newValue);
       switch (newValue) {
-        case "deposits":
-          return browserHistory.push("/deposits");
-        case "redeems":
-          return browserHistory.push("/redeems");
-        case "operators":
-          return browserHistory.push("/operators");
-        case "groups":
-          return browserHistory.push("/groups");
-        case "token":
-          return browserHistory.push("/token");
+        case "rituals":
+          return browserHistory.push("/rituals");
+        case "stakers":
+          return browserHistory.push("/stakers");
         case "about":
           return browserHistory.push("/about");
         default:
           return browserHistory.push("/");
       }
-    };
-
-    function swichNetwork() {
-      setTab("deposits");
-      if (Const.DEFAULT_NETWORK == Const.NETWORK_MAINNET) {
-        window.location.href = "https://testnet.tbtcscan.com/";
-      } else {
-        window.location.href = "https://tbtcscan.com/";
-      }
-    }
-
-    function isMainnet() {
-      return Const.DEFAULT_NETWORK == Const.NETWORK_MAINNET;
-    }
-
-    const handleClickOpenSetting = (event) => {
-      setAnchorElSetting(event.currentTarget);
-    };
-    const handleCloseOpenSetting = () => {
-      setAnchorElSetting(null);
     };
 
     const handleChangeSearchInput = (event) => {
@@ -196,7 +125,7 @@ const HomePage = () => {
               </a>
             </div>
             <p>
-              Powered by Threshold Network!
+              Powered by Threshold Network
               <a href="https://threshold.network/" target="_blank" rel="noopener noreferrer">
                 {" Learn More ↗"}
               </a>
@@ -229,11 +158,8 @@ const HomePage = () => {
               aria-label=""
               sx={{ display: "flex", paddingLeft: "20px", minWidth: "500px" }}
             >
-              <Tab sx={{ padding: 0 }} label="Deposits" value="deposits" />
-              <Tab sx={{ padding: 0 }} label="Redeems" value="redeems" />
-              <Tab sx={{ padding: 0 }} label="Operators" value="operators" />
-              <Tab sx={{ padding: 0 }} label="Groups" value="groups" />
-              <Tab sx={{ padding: 0 }} label="Token" value="token" />
+              <Tab sx={{ padding: 2 }} label="DKG Rituals" value="rituals" />
+              <Tab sx={{ padding: 2 }} label="Stakers" value="stakers" />
             </TabList>
             <div style={{ flex: "1 1 0%" }}></div>
             <div className={styles.search}>
@@ -255,37 +181,6 @@ const HomePage = () => {
                 }}
               />
             </div>
-            <div className={styles.setting}>
-              <IconButton
-                color="primary"
-                component="label"
-                aria-controls={openSetting ? "basic-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={openSetting ? "true" : undefined}
-                onClick={handleClickOpenSetting}
-              >
-                <SettingsIcon />
-              </IconButton>
-              <Menu
-                style={{ marginTop: "20px" }}
-                anchorEl={anchorElSetting}
-                open={openSetting}
-                onClose={handleCloseOpenSetting}
-                MenuListProps={{
-                  "aria-labelledby": "basic-button",
-                }}
-              >
-                <MenuItem>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => swichNetwork()}
-                  >
-                    {isMainnet() ? "Switch to Testnet" : "Switch to Mainnet"}
-                  </Button>
-                </MenuItem>
-              </Menu>
-            </div>
             <div className={styles.about}>
               <TabList
                 className={styles.tab}
@@ -296,14 +191,10 @@ const HomePage = () => {
               </TabList>
             </div>
           </Box>
-          <TabPanel value="deposits">{deposits()}</TabPanel>
-          <TabPanel value="redeems">{redeems()}</TabPanel>
-          <TabPanel value="operators">{operators()}</TabPanel>
-          <TabPanel value="groups">{groups()}</TabPanel>
-          <TabPanel value="operatorDetail">{operatorDetail()}</TabPanel>
-          <TabPanel value="groupDetail">{groupDetail()}</TabPanel>
+          <TabPanel value="rituals">{rituals()}</TabPanel>
+          <TabPanel value="stakers">{stakers()}</TabPanel>
+          <TabPanel value="stakerDetail">{stakerDetail()}</TabPanel>
           <TabPanel value="userDetail">{userDetail()}</TabPanel>
-          <TabPanel value="token">{token()}</TabPanel>
           <TabPanel value="about">{about()}</TabPanel>
         </TabContext>
       </Box>
