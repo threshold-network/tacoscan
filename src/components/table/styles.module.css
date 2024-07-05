@@ -92,6 +92,11 @@
   color: gray;
 }
 
+.descriptionSpan{
+  font-size: 0.875rem;
+  color: gray;
+}
+
 .span_note{
   font-size: 0.8rem;
 }

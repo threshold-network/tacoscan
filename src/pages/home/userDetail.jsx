@@ -56,12 +56,12 @@ const UserDetailPage = () => {
     const user = query.get("user");
     setUser(user);
 
-    Data.getUserDetail(user).then((info) => {1
+    Data.getUserDetail(user).then(async (info) => {
+      const timeout = await Data.getTimeout();
       const array = [...info.rituals];
-      console.log("array: ", array)
       setPageData({
         isLoading: false,
-        rowData: Data.formatRitualsData(array),
+        rowData: Data.formatRitualsData(array, timeout),
       });
     });
 
