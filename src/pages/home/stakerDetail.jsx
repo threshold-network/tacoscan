@@ -291,16 +291,17 @@ function DKGRituals(staker) {
             isLoading: true,
         }));
 
-        Data.getRitualsByStakingProvider(staker).then((info) => {
+        Data.getRitualsByStakingProvider(staker).then(async (info) => {
             if(info?.rituals === undefined){
                 setPageData({
                     isLoading: false,
                     rowData: []
                 });
             } else {
+                const timeout = await Data.getTimeout();
                 setPageData({
                     isLoading: false,
-                    rowData: Data.formatRitualsData(info.rituals)
+                    rowData: Data.formatRitualsData(info.rituals, timeout)
                 });
             }
         });

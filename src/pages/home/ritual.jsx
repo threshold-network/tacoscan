@@ -19,7 +19,7 @@ const RitualPage = ({network, isSearch, searchInput}) => {
             isLoading: true,
         }));
 
-        Data.getRituals(isSearch, searchInput).then((info) => {
+        Data.getRituals(isSearch, searchInput).then(async (info) => {
             if(info?.rituals === undefined){
                 setPageData({
                     isLoading: false,
@@ -27,9 +27,10 @@ const RitualPage = ({network, isSearch, searchInput}) => {
                     ritualCounter: {},
                 });
             } else {
+                const timeout = await Data.getTimeout();
                 setPageData({
                     isLoading: false,
-                    rowData: Data.formatRitualsData(info.rituals),
+                    rowData: Data.formatRitualsData(info.rituals, timeout),
                     ritualCounter: info?.ritualCounter
                 });
             }

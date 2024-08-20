@@ -295,20 +295,36 @@ export function convertToLittleEndian(txHash) {
   return "";
 }
 
-export const formatRitualsData = (rawData) => {
+export const formatRitualsData = (rawData, timeout) => {
+  const timeoutMs = parseFloat(timeout) * 1000;
+
   const formattedData = rawData.map((item) => {
-    const transactionsLength = item.transactions?.length;
+    const currentTimestampMs = Date.now();
+    const initTimeStampMs = item.initTimestamp * 1000;
+    const timeoutStamp = initTimeStampMs + timeoutMs;
+    const transactionsLength = item.transactions.length;
+
+    if (item.dkgStatus === "DKG_AWAITING_AGGREGATIONS") {
+      const isTimedOut = timeoutStamp < currentTimestampMs;
+      if (isTimedOut) {
+        item.dkgStatus = "TIME_OUT";
+        item.transactions.unshift({
+          timestamp: timeoutStamp / 1000,
+          description: "Time Out"
+        });
+      }
+    }
 
     return {
       id: item.id,
-      status: item.dkgStatus.replace("_", " "),
+      status: item.dkgStatus.replaceAll("_", " "),
       initiator: item.initiator,
       authority: item.authority,
       aggregations: item.postedAggregations,
       transcripts: item.postedTranscripts,
       participants: item.participants,
       publicKey: item.publicKey,
-      initTimeStamp: item.initTimestamp * 1000,
+      initTimeStamp: item.initTimeStamp * 1000,
       endTimeStamp: item.endTimestamp * 1000,
       threshold: item.threshold,
       dkgSize: item.dkgSize,
@@ -398,8 +414,6 @@ export const formatStakerDetail = (rawData) => {
     rawData.appAuthHistories || [], 
     appAuthorization.tacoOperator || {}
   );
-
-  console.log('events', events)
 
   return {
     id: appAuthorization.id?.split('-')[0],
@@ -548,7 +562,7 @@ export const getBalanceOfAddress = async (address) => {
     if (address === Const.ADDRESS_ZERO) {
       return 0;
     }
-    let rpc = Const.MAINNET_AP_BALANCE;
+    let rpc = Const.MAINNET_API_BALANCE;
     if (Const.DEFAULT_NETWORK === Const.NETWORK_TESTNET) {
       rpc = Const.GOERLI_API_BALANCE;
     }
@@ -562,38 +576,32 @@ export const getBalanceOfAddress = async (address) => {
   return 0;
 };
 
-export const getRewardClaimed = async (address) => {
+export const getTimeout = async () => {
   if (Const.DEFAULT_NETWORK === Const.NETWORK_TESTNET) return 0;
 
-  const web3 = new Web3(Const.RPC_ETH_MAINNET);
-  const cumulativeMerkleDrop = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37";
+  const web3 = new Web3(Const.RPC_ETH_POLYGON);
+  const coordinator = "0xE74259e3dafe30bAA8700238e324b47aC98FE755";
   const contractAbi = [
     {
-      inputs: [
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-      ],
-      name: "cumulativeClaimed",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
       type: "function",
-    },
+      name: "timeout",
+      stateMutability: "view",
+      inputs: [],
+      outputs: [
+          {
+              name: "",
+              type: "uint32",
+              internalType: "uint32"
+          }
+      ]
+  },
   ];
 
-  const contract = new web3.eth.Contract(contractAbi, cumulativeMerkleDrop);
-  const claimedAmount = await contract.methods
-    .cumulativeClaimed(address)
+  const contract = new web3.eth.Contract(contractAbi, coordinator);
+  const timeout = await contract.methods
+    .timeout()
     .call();
-  return parseFloat(formatGwei(claimedAmount)).toFixed(1);
+  return timeout;
 };
 
 export const getTotalMerkleDropReward = async (address) => {

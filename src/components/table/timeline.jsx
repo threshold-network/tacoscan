@@ -19,38 +19,49 @@ export default function TransactionTimeline(transactions, network) {
   const transactionLength = rowData.transactions.length;
   return (<React.Fragment>
     <Timeline>
-      {rowData.transactions.map((transaction, index) => (<TimelineItem>
-        <TimelineOppositeContent color="text.secondary">
-          <Tooltip title={Data.formatDate(transaction.timestamp * 1000)}>
-            <span>{Data.calculateTimeMoment(transaction.timestamp * 1000)}</span>
-          </Tooltip>
-        </TimelineOppositeContent>
-        <TimelineSeparator>
-          <TimelineDot sx={{backgroundColor:getColorByStatus(transaction.description)}}/>
-          {index != transactionLength - 1 ? <TimelineConnector/> : ""}
-        </TimelineSeparator>
-        <TimelineContent>
-          <Link
-            target="_blank"
-            underline="hover"
-            href={getPolygonScanTxHashLink() + transaction.txHash}
-            className={styles.link}
-          >
-            {transaction.description}
-            <ShareLink/>
-          </Link>
-          <span className={styles.bySpan}>by</span>
-          <Link
-            target="_blank"
-            underline="hover"
-            href={getPolygonScanAddressLink() + transaction.from}
-            className={styles.by_link}
-          >
-            {Data.formatString(transaction.from)}
-            <ShareLink/>
-          </Link>
-        </TimelineContent>
-      </TimelineItem>))}
+      {rowData.transactions.map((transaction, index) => (
+        <TimelineItem>
+          <TimelineOppositeContent color="text.secondary">
+            <Tooltip title={Data.formatDate(transaction.timestamp * 1000)}>
+              <span>{Data.calculateTimeMoment(transaction.timestamp * 1000)}</span>
+            </Tooltip>
+          </TimelineOppositeContent>
+          <TimelineSeparator>
+            <TimelineDot sx={{backgroundColor:getColorByStatus(transaction.description)}}/>
+            {index != transactionLength - 1 ? <TimelineConnector/> : ""}
+          </TimelineSeparator>
+          <TimelineContent>
+            {transaction.txHash 
+              ? <Link
+                  target="_blank"
+                  underline="hover"
+                  href={getPolygonScanTxHashLink() + transaction.txHash}
+                  className={styles.link}
+                >
+                  {transaction.description}
+                  <ShareLink/>
+                </Link>
+              : <span className={styles.descriptionSpan}>
+                {transaction.description}
+              </span>
+            }
+            {transaction.from &&
+              <>
+                <span className={styles.bySpan}>by</span>
+                <Link
+                  target="_blank"
+                  underline="hover"
+                  href={getPolygonScanAddressLink() + transaction.from}
+                  className={styles.by_link}
+                >
+                  {Data.formatString(transaction.from)}
+                  <ShareLink/>
+                </Link>
+              </>
+            }
+          </TimelineContent>
+        </TimelineItem>
+      ))}
     </Timeline>
   </React.Fragment>);
 }
