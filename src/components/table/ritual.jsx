@@ -31,61 +31,39 @@ import * as Utils from "../../utils/utils";
 import {getColorByStatus} from "./view_utils"
 import TransactionTimeline from "./timeline";
 
-const formatAddresses = ({ addresses, isParticipants }) => {
+const formatAddresses = ({ addresses }) => {
   if (addresses.length <= 3) {
     return addresses.map((address, index) => (
       <div key={index}>
-        {isParticipants 
-        ? <>
-            <Link
-              underline="hover"
-              href={Utils.getDomain() + "?staker=" + address}
-              className={styles.link}
-            >
-              {Data.formatString(address)}
-            </Link>
-            <Copy
-              style={{ cursor: "pointer" }}
-              onClick={(e) => copyToClipBoard(address)}
-            />
-          </>
-      : <>
+        <Link
+          underline="hover"
+          href={Utils.getDomain() + "?staker=" + address}
+          className={styles.link}
+        >
           {Data.formatString(address)}
-          <Copy
-            style={{ cursor: "pointer" }}
-            onClick={(e) => copyToClipBoard(address)}
-          />
-        </>}
+        </Link>
+        <Copy
+          style={{ cursor: "pointer" }}
+          onClick={(e) => copyToClipBoard(address)}
+        />
       </div>
     ));
   }
 
   const displayedAddresses = addresses.slice(0, 3).map((address, index) => (
     <div key={index}>
-      {
-        isParticipants
-          ? <>
-              <Link
-                target="_blank"
-                underline="hover"
-                href={Utils.getPolygonScanAddressLink() + address}
-                className={styles.link}
-              >
-                {Data.formatString(address)}
-              </Link>
-              <Copy
-                style={{ cursor: "pointer" }}
-                onClick={(e) => copyToClipBoard(address)}
-              />
-          </>
-          : <>
-              {Data.formatString(address)}
-              <Copy
-                style={{ cursor: "pointer" }}
-                onClick={(e) => copyToClipBoard(address)}
-              />
-            </>
-      }
+      <Link
+        target="_blank"
+        underline="hover"
+        href={Utils.getPolygonScanAddressLink() + address}
+        className={styles.link}
+      >
+        {Data.formatString(address)}
+      </Link>
+      <Copy
+        style={{ cursor: "pointer" }}
+        onClick={(e) => copyToClipBoard(address)}
+      />
     </div>
   ));
 
@@ -160,7 +138,8 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
               align={"left"}
               sortDirection={orderBy === headCell.accessor ? order : false}
             >
-              {headCell.accessor == "updateTime" ||
+              {headCell.accessor == "id" ||
+              headCell.accessor == "updateTime" ||
               headCell.accessor == "totalPostedAggregations" ||
               headCell.accessor == "totalTranscripts" ||
               headCell.accessor == "totalParticipants" ||
@@ -235,6 +214,9 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
             </IconButton>
           </TableCell>
           <TableCell align="left" style={{ width: "10%" }}>
+            <span className={styles.numbers}>{row.id}</span>
+          </TableCell>
+          <TableCell align="left" style={{ width: "10%" }}>
             <Tooltip title={Data.formatDate(row.updateTime)}>
               <span>{Data.calculateTimeMoment(row.updateTime)}</span>
             </Tooltip>
@@ -255,7 +237,7 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
             </Tooltip>
           </TableCell>
           <TableCell align="left">
-            <span className={styles.numbers} >{row.totalPostedAggregations}</span>
+            <span className={styles.numbers}>{row.totalPostedAggregations}</span>
           </TableCell>
           <TableCell align="left">
             <span className={styles.numbers} >{row.totalPostedTranscripts}</span>
@@ -263,12 +245,12 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
           <TableCell align="left">
             <span className={styles.numbers} >{row.totalParticipants}</span>
           </TableCell>
-          <TableCell align="left" sx={{color:getColorByStatus(row.status)}}>
+          <TableCell align="left" sx={{ color:getColorByStatus(row.status) }}>
             {row.status}
           </TableCell>
         </TableRow>
         <TableRow className={styles.container_detail}>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <Box sx={{ margin: 1 }}>
                 <div className={styles.detail_item}>
@@ -339,10 +321,7 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
                             <TableCell>{
                               row.participants.length == 0 
                                 ? "-" 
-                                : formatAddresses({
-                                    addresses: row.participants, 
-                                    isParticipants: true
-                                  })
+                                : formatAddresses({addresses: row.participants})
                               }</TableCell>
                           </TableRow>
                           <TableRow>
@@ -353,6 +332,16 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
                                 : formatAddresses({addresses: row.transcripts})
                               }</TableCell>
                           </TableRow>
+                          {row.pendingTranscripts.length > 0 &&
+                            <TableRow>
+                              <TableCell style={{ verticalAlign: "top" }}>Pending Transcripts</TableCell>
+                              <TableCell>
+                                {
+                                  formatAddresses({addresses: row.pendingTranscripts})
+                                }
+                              </TableCell>
+                            </TableRow>
+                          }
                           <TableRow>
                             <TableCell style={{ verticalAlign: "top" }}>Aggregations</TableCell>
                             <TableCell>{
@@ -361,64 +350,16 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
                                 : formatAddresses({addresses: row.aggregations})
                               }</TableCell>
                           </TableRow>
-                          {/* <TableRow>
-                            <TableCell>Wallet Pub KeyHash</TableCell>
-                            <TableCell>
-                              {Data.formatString(row.walletPubKeyHash)}
-                              <Copy
-                                style={{ cursor: "pointer" }}
-                                onClick={(e) =>
-                                  copyToClipBoard(row.walletPubKeyHash)
+                          {row.pendingAggregations.length > 0 &&
+                            <TableRow>
+                              <TableCell style={{ verticalAlign: "top" }}>Pending Aggregations</TableCell>
+                              <TableCell>
+                                {
+                                  formatAddresses({addresses: row.pendingAggregations})
                                 }
-                              />
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Funding TxHash </TableCell>
-                            <TableCell>
-                              <Link
-                                target="_blank"
-                                underline="hover"
-                                href={
-                                  Utils.getBlockStreamInfo() +
-                                  row.fundingTxHash.replace("0x", "")
-                                }
-                                className={styles.link}
-                              >
-                                {Data.formatString(
-                                  row.fundingTxHash.replace("0x", "")
-                                )}
-                              </Link>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Funding Output Index</TableCell>
-                            <TableCell>{row.fundingOutputIndex}</TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Blinding Factor</TableCell>
-                            <TableCell>
-                              {row.blindingFactor}
-                              <Copy
-                                style={{ cursor: "pointer" }}
-                                onClick={(e) =>
-                                  copyToClipBoard(row.blindingFactor)
-                                }
-                              />
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell>Refund Pub KeyHash</TableCell>
-                            <TableCell>
-                              {Data.formatString(row.refundPubKeyHash)}
-                              <Copy
-                                style={{ cursor: "pointer" }}
-                                onClick={(e) =>
-                                  copyToClipBoard(row.refundPubKeyHash)
-                                }
-                              />
-                            </TableCell>
-                          </TableRow> */}
+                              </TableCell>
+                            </TableRow>
+                          }
                         </TableBody>
                       </Table>
                     </TableContainer>
@@ -468,7 +409,7 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
                           height: 35 * emptyRows,
                         }}
                       >
-                        <TableCell colSpan={6} />
+                        <TableCell colSpan={8} />
                       </TableRow>
                     )}
                   </TableBody>
