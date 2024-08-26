@@ -8,7 +8,7 @@ export const ritual_columns = [
   {
     header: "Id",
     accessor: "id",
-    numeric: false,
+    numeric: true,
   },
   {
     header: "Updated",
@@ -21,8 +21,8 @@ export const ritual_columns = [
     numeric: false,
   },
   {
-    header: "Aggregations",
-    accessor: "totalPostedAggregations",
+    header: "Participants",
+    accessor: "totalParticipants",
     numeric: true,
   },
   {
@@ -31,8 +31,8 @@ export const ritual_columns = [
     numeric: true,
   },
   {
-    header: "Participants",
-    accessor: "totalParticipants",
+    header: "Aggregations",
+    accessor: "totalPostedAggregations",
     numeric: true,
   },
   {

@@ -237,13 +237,13 @@ export const RitualTable = ({ columns, data, isLoading, network }) => {
             </Tooltip>
           </TableCell>
           <TableCell align="left">
-            <span className={styles.numbers}>{row.totalPostedAggregations}</span>
+            <span className={styles.numbers} >{row.totalParticipants}</span>
           </TableCell>
           <TableCell align="left">
             <span className={styles.numbers} >{row.totalPostedTranscripts}</span>
           </TableCell>
           <TableCell align="left">
-            <span className={styles.numbers} >{row.totalParticipants}</span>
+            <span className={styles.numbers}>{row.totalPostedAggregations}</span>
           </TableCell>
           <TableCell align="left" sx={{ color:getColorByStatus(row.status) }}>
             {row.status}
