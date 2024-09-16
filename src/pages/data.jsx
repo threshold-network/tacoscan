@@ -6,6 +6,11 @@ import Web3 from "web3";
 const tacoAddr = "0x347cc7ede7e5517bd47d20620b2cf1b406edcf07"
 export const ritual_columns = [
   {
+    header: "Id",
+    accessor: "id",
+    numeric: true,
+  },
+  {
     header: "Updated",
     accessor: "updateTime",
     numeric: false,
@@ -16,8 +21,8 @@ export const ritual_columns = [
     numeric: false,
   },
   {
-    header: "Aggregations",
-    accessor: "totalPostedAggregations",
+    header: "Participants",
+    accessor: "totalParticipants",
     numeric: true,
   },
   {
@@ -26,8 +31,8 @@ export const ritual_columns = [
     numeric: true,
   },
   {
-    header: "Participants",
-    accessor: "totalParticipants",
+    header: "Aggregations",
+    accessor: "totalPostedAggregations",
     numeric: true,
   },
   {
@@ -304,7 +309,7 @@ export const formatRitualsData = (rawData, timeout) => {
     const timeoutStamp = initTimeStampMs + timeoutMs;
     const transactionsLength = item.transactions.length;
 
-    if (item.dkgStatus === "DKG_AWAITING_AGGREGATIONS") {
+    if (item.dkgStatus === "DKG_AWAITING_AGGREGATIONS" || item.dkgStatus === "DKG_AWAITING_TRANSCRIPTS") {
       const isTimedOut = timeoutStamp < currentTimestampMs;
       if (isTimedOut) {
         item.dkgStatus = "TIME_OUT";
@@ -315,8 +320,19 @@ export const formatRitualsData = (rawData, timeout) => {
       }
     }
 
+    const participantsLower = item.participants.map((participant) => participant.toLowerCase());
+    const postedTranscriptsLower = item.postedTranscripts.map((transcript) => transcript.toLowerCase());
+    const postedAggregationsLower = item.postedAggregations.map((aggregation) => aggregation.toLowerCase());
+
+    const pendingTranscripts = participantsLower.filter(
+      (participant) => !postedTranscriptsLower.includes(participant)
+    );
+
+    const pendingAggregations = participantsLower.filter(
+      (participant) => !postedAggregationsLower.includes(participant)
+    );
     return {
-      id: item.id,
+      id: parseFloat(item.id),
       status: item.dkgStatus.replaceAll("_", " "),
       initiator: item.initiator,
       authority: item.authority,
@@ -334,10 +350,11 @@ export const formatRitualsData = (rawData, timeout) => {
       totalParticipants: item.participants.length,
       totalPostedAggregations: item.postedAggregations.length,
       totalPostedTranscripts: item.postedTranscripts.length,
-    }});
+      pendingTranscripts: pendingTranscripts,
+      pendingAggregations: pendingAggregations,
+  }});
 
-  formattedData.sort((a, b) => b.updateTime - a.updateTime);
-  return formattedData;
+  return formattedData.sort((a, b) => b.id - a.id);
 }
 
 export const formatStakers = (rawData) => {
